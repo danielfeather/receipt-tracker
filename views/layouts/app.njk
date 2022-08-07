@@ -1,0 +1,13 @@
+<html lang="en">
+    <head>
+        <title>Receipt Tracker</title>
+        <link rel="stylesheet" href="/css/app.css">
+        {% block head %}{% endblock %}
+    </head>
+    <body>
+        {% include 'app/header.njk' %}
+        {% block content %}{% endblock %}
+        {% block endbody %}{% endblock %}
+        <script src="/app.js"></script>
+    </body>
+</html>

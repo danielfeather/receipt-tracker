@@ -1,0 +1,20 @@
+<nav class="uk-navbar-container uk-margin uk-light" >
+    <div class="uk-container uk-navbar" uk-navbar>
+        <div class="uk-navbar-left">
+
+            <a class="uk-navbar-item uk-logo" href="/">Receipt Tracker</a>
+
+        </div>
+        <div class="uk-navbar-right">
+
+            <div class="uk-navbar-item">
+                {% if user %}
+                    <span>{{ user.name }}</span>
+                {% else %}
+                    <a href="/login" class="uk-button uk-button-primary">Login</a>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</nav>

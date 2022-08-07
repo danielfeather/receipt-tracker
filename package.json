@@ -1,0 +1,48 @@
+{
+  "name": "receipt-tracker",
+  "version": "1.0.0",
+  "description": "Application to upload and analyze receipts",
+  "main": "dist/bin/www",
+  "scripts": {
+    "start": "node dist/bin/www",
+    "compile": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/debug": "^4.1.7",
+    "@types/express": "^4.17.13",
+    "@types/express-session": "^1.17.5",
+    "@types/node": "^18.6.4",
+    "@types/nunjucks": "^3.2.1",
+    "@types/passport": "^1.0.9",
+    "@types/passport-microsoft": "^0.0.0",
+    "@types/uikit": "^3.14.0",
+    "@typescript-eslint/eslint-plugin": "^5.32.0",
+    "@typescript-eslint/parser": "^5.32.0",
+    "eslint": "^8.21.0",
+    "laravel-mix": "^6.0.49",
+    "nodemon": "^2.0.19",
+    "resolve-url-loader": "^5.0.0",
+    "sass": "^1.54.3",
+    "sass-loader": "^12.6.0",
+    "ts-loader": "^9.3.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4",
+    "uikit": "^3.15.1"
+  },
+  "dependencies": {
+    "@microsoft/microsoft-graph-client": "^3.0.2",
+    "@prisma/client": "^4.1.1",
+    "body-parser": "^1.20.0",
+    "debug": "^4.3.4",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "express-session": "^1.17.3",
+    "nunjucks": "^3.2.3",
+    "passport": "^0.6.0",
+    "passport-microsoft": "^1.0.0",
+    "prisma": "^4.1.1"
+  }
+}

@@ -1,0 +1,9 @@
+{
+    "watch": [
+        "src",
+        "prisma",
+        "views"
+    ],
+    "ext": "ts,prisma,njk",
+    "exec": "ts-node ./src/bin/www"
+}
