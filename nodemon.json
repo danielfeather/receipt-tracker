@@ -5,5 +5,5 @@
         "views"
     ],
     "ext": "ts,prisma,njk",
-    "exec": "ts-node ./src/bin/www"
+    "exec": "node --inspect=0.0.0.0:9229 -r ts-node/register src/bin/www.ts"
 }

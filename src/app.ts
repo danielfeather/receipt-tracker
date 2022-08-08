@@ -1,9 +1,9 @@
 import 'dotenv/config'
 import express from 'express'
 import nunjucks from 'nunjucks'
-import Routes from "./routes";
-import bodyParser from 'body-parser';
-import prisma from './database/client';
+import Routes from './routes'
+import bodyParser from 'body-parser'
+import prisma from './database/client'
 import { Strategy as MicrosoftStrategy } from 'passport-microsoft'
 
 const app = express()
@@ -12,61 +12,73 @@ import passport from 'passport'
 
 passport.serializeUser((user: any, done) => {
 
-  done(null, user.id)
+	done(null, user.id)
 
 })
 
 passport.deserializeUser(async (id: number, done) => {
 
-  const user = await prisma.user.findFirst({
-    where: {
-      id: {
-        equals: id
-      }
-    }
-  })
+	const user = await prisma.user.findFirst({
+		where: {
+			id: {
+				equals: id
+			}
+		}
+	})
 
-  done(null, user)
+	done(null, user)
 
 })
 
 import session from 'express-session'
 
 app.use(session({
-  secret: 'testing',
-  saveUninitialized: false,
-  resave: false
+	secret: 'testing',
+	saveUninitialized: false,
+	resave: false
 }))
 
 app.use(passport.initialize())
 app.use(passport.session())
 
 passport.use(new MicrosoftStrategy({
-  // Standard OAuth2 options
-  clientID: 'applicationidfrommicrosoft',
-  clientSecret: 'applicationsecretfrommicrosoft',
-  callbackURL: "http://localhost:3000/auth/microsoft/callback",
-  scope: ['user.read'],
-},function(
-    accessToken: string,
-    refreshToken: string,
-    profile: any,
-    done: (err: any, user: any) => void
+	// Standard OAuth2 options
+	clientID: process.env.MICROSOFT_CLIENT_ID as string,
+	clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
+	callbackURL: process.env.MICROSOFT_REDIRECT_URI as string,
+	scope: ['user.read'],
+},async function(
+	accessToken: string,
+	refreshToken: string,
+	profile: any,
+	done: (err: any, user: any) => void
 ) {
-  let user = prisma.user.findFirst({
-    where: {
-      microsoftId: profile.id
-    }
-  })
+	const user = await prisma.user.findFirst({
+		where: {
+			microsoftId: profile.id
+		}
+	})
 
-  done(null, user)
+	if (!user) {
+		const user = await prisma.user.create({
+			data: {
+				name: profile.displayName,
+				microsoftId: profile.id
+			}
+		})
+
+		done(null, user)
+		return
+	}
+
+	done(null, user)
 }))
 
 nunjucks.configure([
-    'views',
+	'views',
 ], {
-  autoescape: true,
-  express: app
+	autoescape: true,
+	express: app
 })
 
 app.use(bodyParser.json())

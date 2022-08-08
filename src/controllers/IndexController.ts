@@ -1,30 +1,30 @@
 import Controller from './Controller'
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client'
 
 export default class IndexController extends Controller {
 
-  db: PrismaClient
+	db: PrismaClient
 
-  constructor(db: PrismaClient) {
-      super();
-      this.db = db
-  }
+	constructor(db: PrismaClient) {
+		super()
+		this.db = db
+	}
 
-  public async index() {
+	public async index() {
 
-      const response = await this.db.receipt.findMany(
-          {
-            include: {
-              vendor: true,
-              items: true
-            }
-          }
-      )
+		const response = await this.db.receipt.findMany(
+			{
+				include: {
+					vendor: true,
+					items: true
+				}
+			}
+		)
 
-      const results = Array.from(response)
+		const results = Array.from(response)
 
-      this.res.render('app/index', { results: JSON.stringify(results) })
+		this.res.render('app/index', { results: JSON.stringify(results), user: this.req.user })
 
-  }
+	}
 
 }
