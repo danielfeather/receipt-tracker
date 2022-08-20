@@ -36,4 +36,5 @@ model User {
     id Int @id @default(autoincrement())
     name String
     microsoftId String @map("microsoft_id")
+    refreshToken String? @db.Text @map("refresh_token")
 }

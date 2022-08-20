@@ -8,10 +8,17 @@ import passport from 'passport'
 
 const router = Router()
 
+router.get('/', (req, res) => res.render('index'))
+
 // Login routes
-router.get('/login', passport.authenticate('microsoft'))
-router.get('/login/callback', passport.authenticate('microsoft', { failureRedirect: '/login' }), function (req, res) {
+router.get('/login', passport.authenticate('openid-client'))
+router.get('/login/callback', passport.authenticate('openid-client'), (req, res) => {
 	res.redirect('/app/dashboard')
+})
+router.get('/logout', (req, res) => {
+
+	req.logout(() => res.redirect('/'))
+
 })
 
 const appRouter = Router()

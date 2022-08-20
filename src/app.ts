@@ -4,7 +4,7 @@ import nunjucks from 'nunjucks'
 import Routes from './routes'
 import bodyParser from 'body-parser'
 import prisma from './database/client'
-import { Strategy as MicrosoftStrategy } from 'passport-microsoft'
+import {Strategy, generators, TokenSet} from 'openid-client'
 
 const app = express()
 
@@ -34,45 +34,78 @@ import session from 'express-session'
 
 app.use(session({
 	secret: 'testing',
-	saveUninitialized: false,
+	saveUninitialized: true,
 	resave: false
 }))
 
 app.use(passport.initialize())
 app.use(passport.session())
 
-passport.use(new MicrosoftStrategy({
-	// Standard OAuth2 options
-	clientID: process.env.MICROSOFT_CLIENT_ID as string,
-	clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
-	callbackURL: process.env.MICROSOFT_REDIRECT_URI as string,
-	scope: ['user.read'],
-},async function(
-	accessToken: string,
-	refreshToken: string,
-	profile: any,
-	done: (err: any, user: any) => void
-) {
-	const user = await prisma.user.findFirst({
-		where: {
-			microsoftId: profile.id
-		}
-	})
+import { Issuer } from 'openid-client'
+import { config } from '../config/config'
 
-	if (!user) {
-		const user = await prisma.user.create({
-			data: {
-				name: profile.displayName,
-				microsoftId: profile.id
-			}
+Issuer.discover('https://login.microsoftonline.com/common')
+	.then((microsoft) => {
+		const client = new microsoft.Client({
+			client_id: config('microsoft.clientId'),
+			client_secret: config('microsoft.clientSecret'),
+			redirect_uris: ['http://localhost:3000/login/callback'],
+			response_types: ['code token id_token'],
 		})
 
-		done(null, user)
-		return
-	}
+		const params = {
+			client_id: process.env.MICROSOFT_CLIENT_ID,
+			response_type: 'code',
+			scope: 'openid profile email offline_access Files.ReadWrite',
+			nonce: generators.nonce(),
+			redirect_uri: 'http://localhost:3000/login/callback',
+			state: generators.state(),
+			prompt: 'select_account',
+		}
 
-	done(null, user)
-}))
+		const verify = async ( tokenSet: TokenSet, userInfo: any, done: (arg0: null, arg1: any) => void ) => {
+
+			let user = undefined
+
+			user = await prisma.user.findFirst({
+				where: {
+					microsoftId: userInfo.sub
+				}
+			})
+
+			if (!user) {
+				user = await prisma.user.create({
+					data: {
+						name: userInfo.name,
+						microsoftId: userInfo.sub
+					}
+				})
+			}
+
+
+			await prisma.user.update({
+				where: {
+					id: user.id
+				},
+				data: {
+					name: userInfo.name,
+					refreshToken: tokenSet.refresh_token
+				}
+			})
+
+			done(null, user)
+		}
+
+		const options = {
+			client,
+			params,
+		}
+		passport.use('openid-client', new Strategy( options, verify ))
+	}).catch((err: any) => {
+		if (err) {
+			console.log(err)
+		}
+	})
 
 nunjucks.configure([
 	'views',
